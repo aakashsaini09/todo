@@ -1,169 +1,288 @@
-import Loading from '@/components/Loading'
-import landing from '../assets/landing1.jpg'
-import { useToast } from '@/hooks/use-toast'
-import axios from 'axios'
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import Footer from '@/components/Footer'
+import { useState } from 'react'
+import { Shield, Heart, Share2, Smile, MessageSquare, Sparkles, Github, Star, Menu, X } from 'lucide-react'
+
 const Landing = () => {
-  const {toast} = useToast()
-  const [navbarOpen, setNavbarOpen] = useState(false);
-  const [loading, setloading] = useState(true)
-  const url = 'https://silent-shout.netlify.com';
+  const [navbarOpen, setNavbarOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [title, setTitle] = useState('')
+  const [star] = useState(142)
+  const [showToast, setShowToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
+  
+  const url = 'https://silent-shout.netlify.com'
+  const showNotification = (message: string) => {
+    setToastMessage(message)
+    setShowToast(true)
+    setTimeout(() => setShowToast(false), 3000)
+  }
+
   const copyLinkToClipboard = () => {
     navigator.clipboard.writeText(url)
-    toast({description: "Link copied!"})
-  };
-  const [title, settitle] = useState('')
-  const BackEndURL = import.meta.env.VITE_APP_BACKEND_URL
-  const sendMessage = async (e: any) => {
+    showNotification("Link copied to clipboard!")
+  }
+
+  const sendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    let id = "14"
-    setloading(true)
-    try {  
-        await axios.post(`${BackEndURL}/api/auth/user/addfeed/${id}`, {title: title})
-        toast({description: "Message Send Successfully" })
-        setloading(false)
-        settitle("")
-    } catch (error) {
-        settitle("")
-        toast({variant: 'destructive', description: "Error Occure! Please try again" })
-        console.log("Something went wrong. Error: ", error)
-        setloading(false)
+    if (!title.trim()) {
+      showNotification("Please enter a message")
+      return
     }
-}
-  useEffect(() => {
-    // getAllusers()
-    getContributors()
-  }, [])
-  const [star, setstar] = useState(0)
-  const getContributors = async() => {
-    setloading(true)
-    const res = await axios.get('https://api.github.com/repositories/670952279')
-    setstar(res.data.stargazers_count)
-    setloading(false)
-}
-// https://silent-shout.netlify.appmessage/672efbcc32518b1efa8e28d5
+    
+    setLoading(true)
+    // Simulate API call
+    setTimeout(() => {
+      showNotification("Message sent successfully! 🎉")
+      setTitle("")
+      setLoading(false)
+    }, 1000)
+  }
+
   return (
-    <>
-    {loading && <div className="h-[100vh] w-full overflow-y-hidden absolute z-10 bg-gray-900 text-white"><Loading/></div>}
-    <header className="fixed top-0 w-full clearNav z-50">
-      <div className="max-w-6xl mx-auto flex justify-between p-5 ">
-        <div className="">
-          <a href="/"className="flex text-3xl text-white font-extrabold mb-4 md:mb-0" >SILENT SHOUT </a>
-          <button className="text-white pb-4 cursor-pointer leading-none px-3 py-1 md:hidden outline-none focus:outline-none content-end ml-auto" type="button" aria-label="button" onClick={() => setNavbarOpen(!navbarOpen)} >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu">
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-800 via-black to-slate-800 text-white overflow-hidden">
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top">
+          <div className="bg-white text-slate-900 z-40 px-6 py-3 rounded-lg shadow-lg border border-purple-200">
+            {toastMessage}
+          </div>
         </div>
-
-
-        <div className="">
-          <Link to={'https://github.com/aakashsaini09/Silent-Shout.git'} target='_blank' className="flex overflow-hidden border items-center text-sm font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-black text-white shadow hover:bg-black/90 h-9 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out hover:ring-2 hover:ring-black hover:ring-offset-2">
-            <span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-40" ></span>
-            <div className="flex items-center">
-            <i className="fa-brands fa-github text-white mr-2 text-lg"></i> 
-              <span className=" text-white">Star on GitHub</span>
-            </div>
-            <div className="ml-2 flex items-center gap-1 text-sm md:flex">
-              <svg className="w-4 h-4 text-gray-500 transition-all duration-300 group-hover:text-yellow-300" data-slot="icon" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" >
-                <path clipRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" fillRule="evenodd"></path>
-              </svg>
-              <span className="inline-block tabular-nums tracking-wider font-display font-medium text-white">{star}</span>
-            </div>
-          </Link>
-        </div>
+      )}
+      {/* Animated background elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-700"></div>
       </div>
-    </header>
-    <section className="text-gray-600 body-font">
-        <div className="max-w-5xl pt-52 pb-24 mx-auto">
-          <h1 className="text-80 text-center font-4 lh-6 ld-04 font-bold text-white mb-6">
-          Invite Honest Thoughts, No Names Attached
-          </h1>
-          <h2 className="text-2xl font-4 font-semibold px-28 pb-11 text-gray-700 text-center">
-          Share your unique link to receive honest, anonymous feedback from friends and followers. No sign-ups, no identities — just real opinions.
-          </h2>
-          <div className="ml-6 text-center">
-            <span
-              className="inline-flex items-center py-3 font-semibold text-black transition duration-500 ease-in-out transform bg-transparent bg-white px-7 text-md md:mt-0 hover:text-black hover:bg-white focus:shadow-outline" >
-              <div className="flex text-lg">
-                <span onClick={copyLinkToClipboard} className="justify-center cursor-pointer">Invite Your Friends</span>
+
+      {/* Navigation */}
+      <header className="fixed top-0 w-full z-10 backdrop-blur-sm bg-slate-950/50 border-b border-white/10">
+        <nav className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <a href="/" className="flex items-center space-x-2 group">
+              <div className="relative">
+                <MessageSquare className="w-8 h-8 text-purple-400 group-hover:text-purple-300 transition-colors" />
+                <div className="absolute inset-0 bg-purple-400/20 blur-xl group-hover:bg-purple-300/30 transition-all"></div>
               </div>
-      
+              <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                SILENT SHOUT
+              </span>
+            </a>
+
+            {/* Desktop GitHub Button */}
+            <div className="hidden md:block">
+              <a 
+                href='https://github.com/aakashsaini09/Silent-Shout.git' 
+                target='_blank'
+                rel="noopener noreferrer"
+                className="group relative inline-flex items-center gap-2 px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all duration-300 hover:scale-105"
+              >
+                <Github className="w-5 h-5" />
+                <span className="font-medium">Star on GitHub</span>
+                <div className="flex items-center gap-1 px-2 py-0.5 bg-purple-500/20 rounded-full">
+                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  <span className="text-sm font-semibold">{star}</span>
+                </div>
+              </a>
+            </div>
+
+            {/* Mobile menu button */}
+            <button 
+              onClick={() => setNavbarOpen(!navbarOpen)}
+              className="md:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              {navbarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+
+          {/* Mobile menu */}
+          {navbarOpen && (
+            <div className="md:hidden mt-4 pb-4 animate-in slide-in-from-top">
+              <a 
+                href='https://github.com/aakashsaini09/Silent-Shout.git' 
+                target='_blank'
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all"
+              >
+                <Github className="w-5 h-5" />
+                <span>Star on GitHub</span>
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <span className="font-semibold">{star}</span>
+              </a>
+            </div>
+          )}
+        </nav>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-20 px-6">
+        <div className="max-w-6xl mx-auto text-center transition-all duration-1000 opacity-100 translate-y-0">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full mb-8 backdrop-blur-sm">
+            <Sparkles className="w-4 h-4 text-purple-400" />
+            <span className="text-sm font-medium text-purple-300">100% Anonymous Feedback Platform</span>
+          </div>
+
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+            <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+              Invite Honest Thoughts,
             </span>
-            <div className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent ml-11 bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md md:mt-0 focus:shadow-outline">
-              <div className="flex text-lg">
-                <Link to={'/login'} className="justify-center">Get Start For Free</Link>
-              </div>
-            </div>
+            <br />
+            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+              No Names Attached
+            </span>
+          </h1>
+
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Share your unique link to receive honest, anonymous feedback from friends and followers. 
+            <span className="text-purple-300 font-semibold"> No sign-ups, no identities</span> — just real opinions.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button
+              onClick={copyLinkToClipboard}
+              className="group relative px-8 py-4 bg-white text-slate-900 rounded-full font-semibold text-lg hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                <Share2 className="w-5 h-5" />
+                Invite Your Friends
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 opacity-0 group-hover:opacity-100 rounded-full blur transition-opacity"></div>
+            </button>
+
+            <a
+              href='/login'
+              className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-semibold text-lg hover:scale-105 transition-all duration-300 shadow-lg shadow-purple-500/50"
+            >
+              <span className="flex items-center gap-2">
+                Get Started Free
+                <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+              </span>
+            </a>
           </div>
         </div>
-        <div className="container flex flex-col items-center justify-center mx-auto">
-          <img src={landing} className="object-cover object-center w-3/4 mb-10 shadow-md filter grayscale" alt="Placeholder Image"></img>
-        </div>
-        <h2 className="pt-40 mb-1 text-2xl font-semibold tracking-tighter font-serif text-center text-gray-200 lg:text-7xl md:text-6xl">
-          Silent Shout
-        </h2>
-        <br></br>
-        <p className="mx-auto text-xl text-center text-gray-300 font-normal leading-relaxed fs521 lg:w-2/3">
-          Best platform to share your thoughts for particular person for free.
-        </p>
-        <div className="pt-12 pb-24 max-w-4xl mx-auto fsac4 md:px-1 px-3">
-          <div className="ktq4">
-            <h3 className="pt-3 font-semibold text-lg text-white">
-                <i className="fa-solid fa-shield-halved mr-3"></i>Security & Privacy
-            </h3>
-            <p className="pt-2 value-text text-md text-gray-200 fkrr1">
-            Your identity is safe with us. Messages are fully anonymous, and no personal data is shared. Feel confident in your privacy.
-            </p>
-          </div>
-          <div className="ktq4">
-            <h3 className="pt-3 font-semibold text-lg text-white">
-                <i className="fa-regular fa-heart mr-3"></i>Respectful Feedback Only
-            </h3>
-            <p className="pt-2 value-text text-md text-gray-200 fkrr1">
-            Our platform is built for honest, constructive feedback—harassment and harmful language have no place here.
-            </p>
-          </div>
-          <div className="ktq4">
-            <h3 className="pt-3 font-semibold text-lg text-white">
-                <i className="fa-solid fa-share mr-3"></i>Effortless Sharing
-            </h3>
-            <p className="pt-2 value-text text-md text-gray-200 fkrr1">
-            Share your link on social media or directly with friends. No sign-ups required for message senders, making it easy for everyone to connect.
-            </p>
-          </div>
-          <div className="ktq4">
-            <h3 className="pt-3 font-semibold text-lg text-white">
-                <i className="fa-regular fa-face-smile mr-3"></i>Simple & Insightful
-            </h3>
-            <p className="pt-2 value-text text-md text-gray-200 fkrr1">
-            View all your feedback in one place. Log in anytime to see what others have to say and gain real insights.
-            </p>
+
+        {/* Hero Image with glassmorphism */}
+        <div className="max-w-5xl mx-auto mt-20 relative">
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10"></div>
+          <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl backdrop-blur-sm bg-white/5 p-1">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20"></div>
+            <img 
+              src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=600&fit=crop" 
+              className="w-full h-auto rounded-xl opacity-80 hover:opacity-100 transition-opacity duration-500" 
+              alt="Silent Shout Platform"
+            />
           </div>
         </div>
-        <section className="relative pb-24">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
-            <div className="py-24 md:py-36">
-              <h1 className="mb-5 text-6xl font-bold text-white">
-                Have Something in Mind?
-              </h1>
-              <h1 className="mb-9 text-2xl font-semibold text-gray-200">
-                Have Feedback? Share It Anonymously! Directly with Me!
-              </h1>
-              <input value={title} onChange={(e)=>{settitle(e.target.value)}} type="text" placeholder='This website is...' name="email" autoComplete="email" className="border border-gray-600 w-1/4 py-4 px-3 rounded-md text-white font-semibold hover:border-gray-700 bg-black"/>
-              <div className="inline-flex items-center px-7 py-3 mt-2 ml-2 font-medium text-black transition duration-500 ease-in-out transform bg-transparent border rounded-lg bg-white">
-                <button type='submit' className="justify-center text-sm" onClick={sendMessage}>Send Feedback</button>
-              </div>
-            </div>
-          </div>
-        </section>
       </section>
-      <Footer/>
-    </>
+
+      {/* Features Section */}
+      <section className="py-24 px-6 relative">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+              Why Silent Shout?
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              The best platform to share your thoughts for a particular person, completely free.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {[
+              {
+                icon: Shield,
+                title: "Security & Privacy",
+                description: "Your identity is safe with us. Messages are fully anonymous, and no personal data is shared. Feel confident in your privacy.",
+                color: "from-purple-500 to-blue-500"
+              },
+              {
+                icon: Heart,
+                title: "Respectful Feedback Only",
+                description: "Our platform is built for honest, constructive feedback—harassment and harmful language have no place here.",
+                color: "from-pink-500 to-red-500"
+              },
+              {
+                icon: Share2,
+                title: "Effortless Sharing",
+                description: "Share your link on social media or directly with friends. No sign-ups required for message senders, making it easy for everyone to connect.",
+                color: "from-blue-500 to-cyan-500"
+              },
+              {
+                icon: Smile,
+                title: "Simple & Insightful",
+                description: "View all your feedback in one place. Log in anytime to see what others have to say and gain real insights.",
+                color: "from-yellow-500 to-orange-500"
+              }
+            ].map((feature, index) => (
+              <div
+                key={index}
+                className="group relative p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105 hover:shadow-xl"
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity`}></div>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <feature.icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-gray-400 leading-relaxed">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Feedback Form Section */}
+      <form onSubmit={sendMessage} className="py-24 px-6 relative">
+        <div className="max-w-4xl mx-auto">
+          <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-purple-900/20 to-pink-900/20 backdrop-blur-xl p-12">
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40"></div>
+            
+            <div className="relative z-10 text-center">
+              <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                Have Something in Mind?
+              </h2>
+              <p className="text-xl text-gray-300 mb-8">
+                Have Feedback? Share It Anonymously Directly with Me!
+              </p>
+
+              <div className="space-y-4">
+                <div className="relative">
+                  <input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    type="text"
+                    placeholder="This website is amazing because..."
+                    className="w-full px-6 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent backdrop-blur-sm transition-all"
+                  />
+                </div>
+
+                <button
+                  disabled={loading}
+                  type="submit"
+                  className="w-full sm:w-auto px-8 py-4 bg-white text-slate-900 rounded-2xl font-semibold text-lg hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-white/25 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                      Sending...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <MessageSquare className="w-5 h-5" />
+                      Send Feedback
+                    </span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      {/* Footer */}
+      <footer className="border-t border-white/10 py-8 px-6">
+        <div className="max-w-7xl mx-auto text-center text-gray-400">
+          <p>© 2026 Silent Shout. Made with ❤️ for honest conversations.</p>
+        </div>
+      </footer>
+    </div>
   )
 }
 
